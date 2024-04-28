@@ -2,7 +2,6 @@
   "name": "librarytemplate",
   "version": "0.1.0",
   "description": "",
-  "type": "module",
   "main": "build/commonjs/src/index.js",
   "module": "build/es/src/index.js",
   "scripts": {
@@ -50,5 +49,8 @@
     "tslib": "^2.6.2",
     "typedoc": "^0.25.13",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "pixi.js": "^8.1.0"
   }
 }
