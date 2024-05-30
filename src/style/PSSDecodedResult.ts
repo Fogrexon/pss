@@ -48,7 +48,7 @@ export type PSSDecodedStyle = {
     color: number;
     alpha: number;
   };
-  text: {
+  font: {
     color: number;
     size: number;
     family: string;
@@ -101,7 +101,7 @@ export const createDefaultResult = (): PSSDecodedResult => ({
       color: 0,
       alpha: 0,
     },
-    text: {
+    font: {
       color: 0,
       size: 0,
       family: '',

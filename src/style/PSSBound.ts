@@ -13,11 +13,6 @@ export class PSSBound {
     height: 0,
   };
 
-  public contentSize = {
-    width: 0,
-    height: 0,
-  };
-
   public margin = {
     top: 0,
     right: 0,
@@ -32,10 +27,19 @@ export class PSSBound {
     left: 0,
   };
 
-  public getContentSize() {
-    return {
-      width: this.size.width - this.padding.left - this.padding.right,
-      height: this.size.height - this.padding.top - this.padding.bottom,
-    };
+  public reset() {
+    this.positionType = 'relative';
+    this.position.x = 0;
+    this.position.y = 0;
+    this.size.width = 0;
+    this.size.height = 0;
+    this.margin.top = 0;
+    this.margin.right = 0;
+    this.margin.bottom = 0;
+    this.margin.left = 0;
+    this.padding.top = 0;
+    this.padding.right = 0;
+    this.padding.bottom = 0;
+    this.padding.left = 0;
   }
 }
