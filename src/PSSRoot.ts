@@ -7,7 +7,7 @@ export type PSSRootOptions = {
   pixiCanvas: HTMLCanvasElement;
   pixiRoot: Container;
   children: IPSSNode[];
-}
+};
 
 export class PSSRoot {
   private pixiCanvas: HTMLCanvasElement;
@@ -32,19 +32,19 @@ export class PSSRoot {
       right: 0,
       bottom: 0,
       left: 0,
-    }
-  }
+    },
+  };
 
   constructor(options: PSSRootOptions) {
     this.pixiCanvas = options.pixiCanvas;
     this.pixiRoot = options.pixiRoot;
     this.children = options.children;
 
-    this.children.forEach(child => {
+    this.children.forEach((child) => {
       if (child instanceof PSSElement) {
         this.pixiRoot.addChild(child.container);
       }
-    })
+    });
   }
 
   public resizeHandler() {

@@ -8,9 +8,9 @@ export type PSSElementOptions = {
   pss: PixiStyleSheet;
   // eslint-disable-next-line no-use-before-define
   children?: IPSSNode[];
-}
+};
 
-export class PSSElement implements IPSSNode{
+export class PSSElement implements IPSSNode {
   public readonly style: PixiStyle;
 
   // eslint-disable-next-line no-use-before-define
@@ -42,11 +42,9 @@ export class PSSElement implements IPSSNode{
 
   public render(parentLayout: PSSDecodedLayout): PSSDecodedLayout {
     // Recalculate the style
-    const {
-      layout: decodedLayout,
-      style: decodedStyle,
-    } = this.style.decodeStyleSheet(parentLayout);
-    const childLayouts = this.children.map(child => child.render(decodedLayout));
+    const { layout: decodedLayout, style: decodedStyle } =
+      this.style.decodeStyleSheet(parentLayout);
+    const childLayouts = this.children.map((child) => child.render(decodedLayout));
     const childRect = this.calculateChildRect(childLayouts);
 
     // Calculate the layout of the element
@@ -71,7 +69,7 @@ export class PSSElement implements IPSSNode{
         right: 0,
         bottom: 0,
         left: 0,
-      }
-    }
+      },
+    };
   }
 }

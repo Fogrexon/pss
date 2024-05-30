@@ -39,6 +39,6 @@ export type PixiStyleSheet = Partial<{
   alignContent: 'flex-start' | 'flex-end' | 'center';
   alignSelf: 'flex-start' | 'flex-end' | 'center';
 
-  ":hover": PixiStyleSheet;
-  ":active": PixiStyleSheet;
-}>
+  ':hover': PixiStyleSheet;
+  ':active': PixiStyleSheet;
+}>;
