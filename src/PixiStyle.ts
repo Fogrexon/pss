@@ -22,7 +22,7 @@ export class PixiStyle {
 
   private tempCursor: PSSCursor;
 
-  private get childStyle() {
+  private getChildrenStyles() {
     return this.pssNode.children.map((child) => child.style);
   }
 
@@ -64,8 +64,11 @@ export class PixiStyle {
       height: height >= 0 ? height : baseSize.height,
     };
 
-    for (const child of this.childStyle) {
-      const childBound = child.render(parentBound, parentCursor, newBaseSize);
+    const childrenStyles = this.getChildrenStyles();
+
+    for (let i = 0; i < childrenStyles.length; i += 0) {
+      const childStyle = childrenStyles[i];
+      const childBound = childStyle.render(parentBound, this.tempCursor, newBaseSize);
       if (childBound.positionType === 'relative') {
         this.tempCursor.y +=
           Math.max(childBound.margin.top, this.tempCursor.marginY) +
@@ -82,19 +85,29 @@ export class PixiStyle {
             childBound.margin.right
         );
       }
-      this.tempBound.size.height = this.tempCursor.y + this.tempCursor.marginY;
     }
+    this.tempBound.size.height = this.tempCursor.y + this.tempCursor.marginY;
 
-    // reset the cursor size
+    // overwrite width and height if they are set
     if (width >= 0) {
       this.tempBound.size.width = width;
     }
     if (height >= 0) {
       this.tempBound.size.height = height;
     }
-    if (this.tempBound.positionType !== 'relative') {
-      this.tempBound.position.x = this.decodedResult.layout.x(calcNumberOptions);
-      this.tempBound.position.y = this.decodedResult.layout.y(calcNumberOptions);
+    const x = this.decodedResult.layout.x(calcNumberOptions);
+    const y = this.decodedResult.layout.y(calcNumberOptions);
+    switch (this.decodedResult.layout.position) {
+      case 'absolute':
+        this.tempBound.position.x = x;
+        this.tempBound.position.y = y;
+        break;
+      case 'relative':
+        this.tempBound.position.x = parentCursor.x + x;
+        this.tempBound.position.y = parentCursor.y + y;
+        break;
+      default:
+        throw new Error('Unknown position type');
     }
     this.tempBound.margin.top = this.decodedResult.layout.margin.top(calcNumberOptions);
     this.tempBound.margin.right = this.decodedResult.layout.margin.right(calcNumberOptions);
@@ -106,7 +119,29 @@ export class PixiStyle {
     this.tempBound.padding.left = this.decodedResult.layout.padding.left(calcNumberOptions);
   }
 
-  private flexRender(parentBound: PSSBound, parentCursor: PSSCursor, baseSize: PSSBaseSize) {}
+  private flexRender(parentBound: PSSBound, parentCursor: PSSCursor, baseSize: PSSBaseSize) {
+    this.tempBound.reset();
+    this.tempBound.positionType = this.decodedResult.layout.position;
+
+    this.tempCursor.reset();
+
+    const calcNumberOptions: CalcNumberOptions = {
+      fontSize: this.decodedResult.style.font.size,
+      screenWidth: PSSRoot.screenOptions.width,
+      screenHeight: PSSRoot.screenOptions.height,
+      parentWidth: baseSize.width,
+      parentHeight: baseSize.height,
+    };
+
+    const width = this.decodedResult.layout.width(calcNumberOptions);
+    const height = this.decodedResult.layout.height(calcNumberOptions);
+    const newBaseSize = {
+      width: width >= 0 ? width : baseSize.width,
+      height: height >= 0 ? height : baseSize.height,
+    };
+
+    const childrenStyles = this.getChildrenStyles();
+  }
 
   public decodeStyleSheet(inherit: PixiStyleSheet) {
     this.inheritStyle = inherit;
