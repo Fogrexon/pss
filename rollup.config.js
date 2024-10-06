@@ -5,7 +5,7 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 
 const extensions = ['.ts', '.js'];
 
-const LIBRARY_NAME = 'name';
+const LIBRARY_NAME = 'bubble-ui';
 const LIBRARY_NAME_LOWER = LIBRARY_NAME.toLowerCase();
 
 export default [
@@ -23,7 +23,7 @@ export default [
     },
 
     plugins: [
-      nodeResolve({browser: true}),
+      nodeResolve({ browser: true }),
       postcss({
         extract: true,
       }),
@@ -49,7 +49,7 @@ export default [
     },
 
     plugins: [
-      nodeResolve({browser: true}),
+      nodeResolve({ browser: true }),
       postcss({
         extract: true,
       }),
@@ -74,7 +74,7 @@ export default [
       sourcemap: true,
     },
     plugins: [
-      nodeResolve({browser: true}),
+      nodeResolve({ browser: true }),
       postcss({
         extract: true,
       }),

@@ -1,5 +1,5 @@
 {
-  "name": "librarytemplate",
+  "name": "bubble-ui",
   "version": "0.1.0",
   "description": "",
   "main": "build/commonjs/src/index.js",
@@ -16,14 +16,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Fogrexon/LibraryTemplate.git"
+    "url": "git+https://github.com/Fogrexon/bubble-ui.git"
   },
   "author": "Fogrexon",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Fogrexon/LibraryTemplate/issues"
+    "url": "https://github.com/Fogrexon/bubble-ui/issues"
   },
-  "homepage": "https://github.com/Fogrexon/LibraryTemplate#readme",
+  "homepage": "https://github.com/Fogrexon/bubble-ui#readme",
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
