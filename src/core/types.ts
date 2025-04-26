@@ -1,10 +1,11 @@
 import { Application, Container } from 'pixi.js';
 // 仮想DOM要素のタイプ
 // eslint-disable-next-line no-use-before-define
-export type ElementType = string | FunctionComponent; // HTMLタグ名 or 関数コンポーネント
+export type ElementType = string | FunctionComponent; // PixiJSプリミティブ要素名 (例: 'container', 'sprite', 'text') または FunctionComponent
 
 // プロパティ (属性とスタイルを含む)
 export interface Props {
+  key?: string | number; // 要素の同一性を識別するためのキー
   [key: string]: any;
   // eslint-disable-next-line no-use-before-define
   children?: VNode[];
@@ -33,11 +34,10 @@ export type RenderTarget = Application | Container;
 // リコンサイラが扱う作業単位 (Fiberのような概念の簡易版)
 export interface WorkUnit {
   vnode: VNode;
-  parentPixiContainer: Container;
-  // 差分検出やコミットに必要な情報
-  // 例: effectTag: 'PLACEMENT' | 'UPDATE' | 'DELETION';
-  // 例: alternate?: VNode; // 前回のVNode
+  effectTag: 'PLACEMENT' | 'UPDATE' | 'DELETION';
+  alternate?: VNode; // 前回のVNode
+  nextSibling?: VNode | null; // 配置時に、この兄弟ノードの前に挿入される
 }
 
 // 必要に応じて他の型定義を追加
-// 例: export type EffectTag = 'PLACEMENT' | 'UPDATE' | 'DELETION';
+// 例: export type EffectTag = 'PLACEMENT' | 'UPDATE' | 'DELETION'

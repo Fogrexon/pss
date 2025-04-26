@@ -27,8 +27,9 @@ src/
 │   │   ├── commit.ts     # PixiJSオブジェクトへの変更適用 (Commit Phase)
 │   │   ├── component.ts  # コンポーネントインスタンス管理 (将来的な拡張用)
 │   │   ├── events.ts     # イベントハンドリングの紐付け
-│   │   └── index.ts      # reconciler モジュールのエントリーポイント
-│   ├── renderer.ts     # PixiJS アプリケーションのセットアップとレンダリング開始
+│   │   ├── index.ts      # reconciler モジュールのエントリーポイント
+│   │   └── Reconciler.ts # デフォルトのリコンサイラ実装
+│   ├── Renderer.ts     # PixiJS アプリケーションへのレンダリング処理
 │   ├── types.ts        # コア機能で使う型定義
 │   └── index.ts      # core モジュールのエントリーポイント (reconciler, renderer を集約)
 ├── layout/           # レイアウト計算
@@ -59,7 +60,7 @@ src/
 ## 主要な処理フロー
 
 1.  **コンポーネント定義**: ユーザーは関数コンポーネントを使って UI 構造を定義します。
-2.  **レンダリング開始**: `renderer.ts` の `render` 関数が呼び出され、仮想 DOM ツリー構築のプロセスを開始します。
+2.  **レンダリング開始**: `renderer.ts` の `render` 関数が呼び出されます。`Renderer` インスタンスは、コンストラクタで受け取った `Reconciler` を使用して仮想 DOM ツリー構築のプロセスを開始します。
 3.  **差分検出 (Diffing)**: `reconciler/diff.ts` が前回の仮想 DOM ツリーと新しい仮想 DOM ツリーを比較し、変更が必要な箇所 (Work) を特定します。
 4.  **レイアウト計算**: 変更が必要なノードについて、`layout/yoga.ts` を使用してレイアウト計算を行います。
 5.  **コミット (Commit)**: `reconciler/commit.ts` が特定された変更 (Work) をもとに、実際の PixiJS 表示オブジェクトツリーに対して生成、更新、削除を行います。
