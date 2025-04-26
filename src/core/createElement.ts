@@ -1,5 +1,4 @@
-import { Container } from 'pixi.js';
-import { VNode, VNodeProps } from './types';
+import { VNode, Props } from './types';
 
 /**
  * Creates a Virtual DOM Node (VNode).
@@ -10,34 +9,29 @@ import { VNode, VNodeProps } from './types';
  * @param children Child VNodes or primitive values (string, number).
  * @returns A VNode object.
  */
-export function createElement(
+export const createElement = (
     type: VNode['type'],
-    props: VNodeProps | null,
+    props: Props | null,
     ...children: (VNode | string | number | null)[]
-): VNode {
-    const normalizedProps: VNodeProps = props || {};
+): VNode => {
+    const normalizedProps: Props = { ...props || {} };
 
     // Flatten and filter out null/undefined children, convert primitives to text VNodes
     const normalizedChildren = children
         .flat()
-        .filter(child => child !== null && child !== undefined)
+        .filter(child => child !== null)
         .map(child =>
             typeof child === 'string' || typeof child === 'number'
                 ? createTextVNode(String(child))
                 : child
         );
-
-    normalizedProps.children = normalizedChildren.length === 1
-        ? normalizedChildren[0]
-        : normalizedChildren;
+    normalizedProps.children = normalizedChildren
 
     return {
         type,
         props: normalizedProps,
-        key: normalizedProps.key || null,
+        _key: normalizedProps.key,
         // Internal fields used by the reconciler, initialized later
-        _instance: null,
-        _renderedChildren: [],
         _parent: null,
         _depth: 0,
     };
@@ -48,13 +42,12 @@ export function createElement(
  * @param text The string content.
  * @returns A VNode of type 'TEXT'.
  */
-function createTextVNode(text: string): VNode {
+const createTextVNode = (text: string): VNode => {
     return {
-        type: 'TEXT', // Special type for text nodes
-        props: { children: text },
-        key: null,
-        _instance: null,
-        _renderedChildren: [],
+        type: 'plaintext',
+        props: {},
+        _text: text,
+        _pixiInstance: null,
         _parent: null,
         _depth: 0,
     };

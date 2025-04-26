@@ -15,7 +15,7 @@ import { Renderer } from './Renderer';
  *
  * @returns A fully configured and ready-to-use Renderer instance.
  */
-export function createRenderer(): Renderer {
+export const createRenderer = (): Renderer => {
   const eventManager = new EventManager();
   const componentManager = new ComponentManager();
   const differ = new Differ();

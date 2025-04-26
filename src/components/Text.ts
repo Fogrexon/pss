@@ -23,14 +23,11 @@ export function createTextInstance(vnode: VNode, parent: Container): PixiText {
 export function updateTextInstance(instance: PixiText, vnode: VNode): void {
     const { children, style, ...props } = vnode.props;
 
-    // Set text content
     instance.text = typeof children === 'string' || typeof children === 'number' ? String(children) : '';
 
-    // Apply styles
     if (style) {
         applyStyles(instance, style);
     }
 
-    // Apply other props (e.g., position, scale)
     Object.assign(instance, props);
 }

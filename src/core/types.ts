@@ -7,7 +7,7 @@ export type ElementType = string | FunctionComponent;
  * Property interface
  */
 export interface Props {
-  _key?: string | number;
+  key?: string | number;
   [key: string]: any;
   // eslint-disable-next-line no-use-before-define
   children?: VNode[];
@@ -20,6 +20,12 @@ export interface Props {
 export interface VNode {
   type: ElementType;
   props: Props;
+  
+  _key?: Props['key'];
+  
+  // for plaintext content
+  _text?: string | number | null;
+  
   _pixiInstance?: Container | null;
   _children?: VNode[];
   _parent?: VNode | null;
