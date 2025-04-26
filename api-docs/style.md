@@ -2,12 +2,12 @@
 
 # スタイリング
 
-Pixi Style System では、コンポーネントの `style` プロパティに JavaScript オブジェクトを渡すことでスタイルを適用します。CSS のプロパティ名に似たキーを使用しますが、これらは内部的に Pixi.js のプロパティやレイアウト計算にマッピングされます。
+BubbleUI では、コンポーネントの `style` プロパティに JavaScript オブジェクトを渡すことでスタイルを適用します。CSS のプロパティ名に似たキーを使用しますが、これらは内部的に Pixi.js のプロパティやレイアウト計算にマッピングされます。
 
 ## 基本的な使い方
 
 ```typescript
-import { View, Text } from 'pixi-style-system';
+import { View, Text } from 'bubble-ui';
 
 const styles = {
   container: {

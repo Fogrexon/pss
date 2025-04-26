@@ -2,12 +2,12 @@
 
 # Text コンポーネント
 
-`Text` は、Pixi Style System でテキストを表示するためのコンポーネントです。
+`Text` は、BubbleUI でテキストを表示するためのコンポーネントです。
 
 ## 基本的な使い方
 
 ```typescript
-import { Text } from 'pixi-style-system';
+import { Text } from 'bubble-ui';
 
 const MyText = () => {
   return Text({ 
@@ -17,7 +17,7 @@ const MyText = () => {
       fontWeight: 'bold' 
     } 
   }, [
-    'Hello, Pixi Style System!' // 表示するテキストコンテンツ
+    'Hello, BubbleUI!' // 表示するテキストコンテンツ
   ]);
 };
 ```

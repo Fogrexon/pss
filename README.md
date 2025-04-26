@@ -1,4 +1,4 @@
-# Pixi Style Sheet (pss)
+# BubbleUI
 
 This is a library for Pixi.js that allows you to style your pixi objects with css-in-js-like syntax.
 
@@ -11,7 +11,7 @@ npm run build
 ## Install
 
 ```bash
-npm install @fogrexon/pss
+npm install bubble-ui
 ```
 
 ## Use

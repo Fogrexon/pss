@@ -7,7 +7,7 @@
 ## 基本的な使い方
 
 ```typescript
-import { Input } from 'pixi-style-system';
+import { Input } from 'bubble-ui';
 
 const MyInput = () => {
   return Input({ 

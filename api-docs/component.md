@@ -2,12 +2,12 @@
 
 # コンポーネント
 
-Pixi Style System では、UI要素を関数コンポーネントとして定義します。各コンポーネントは、第一引数にオプション（プロパティやスタイルを含むオブジェクト）、第二引数に子要素の配列を受け取ります。
+BubbleUI では、UI要素を関数コンポーネントとして定義します。各コンポーネントは、第一引数にオプション（プロパティやスタイルを含むオブジェクト）、第二引数に子要素の配列を受け取ります。
 
 ## 基本的な構造
 
 ```typescript
-import { View, Text } from 'pixi-style-system';
+import { View, Text } from 'bubble-ui';
 
 const MyComponent = () => {
   return View({ style: { ... } }, [
@@ -19,7 +19,7 @@ const MyComponent = () => {
 
 ## 標準コンポーネント
 
-Pixi Style System は、基本的なUI構築のための標準コンポーネントを提供します。
+BubbleUI は、基本的なUI構築のための標準コンポーネントを提供します。
 
 *   **[View](./component/View.md)**: レイアウトの基本となるコンテナコンポーネント。
 *   **[Text](./component/Text.md)**: テキストを表示するためのコンポーネント。

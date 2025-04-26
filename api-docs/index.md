@@ -1,6 +1,6 @@
-# Pixi Style System
+# BubbleUI
 
-Pixi Style System は、React のような宣言的なスタイルで Pixi.js の UI を構築するためのライブラリです。複雑なUI構造やスタイル定義をシンプルかつ直感的に記述できます。
+BubbleUI は、React のような宣言的なスタイルで Pixi.js の UI を構築するためのライブラリです。複雑なUI構造やスタイル定義をシンプルかつ直感的に記述できます。
 
 ## 特徴
 
@@ -13,17 +13,17 @@ Pixi Style System は、React のような宣言的なスタイルで Pixi.js �
 
 ```bash
 # npm
-npm install pixi-style-system
+npm install bubble-ui
 
 # yarn
-yarn add pixi-style-system
+yarn add bubble-ui
 ```
 *(注: パッケージ名は仮のものです)*
 
 ## 基本的な使い方
 
 ```typescript
-import { render, View, Text } from 'pixi-style-system';
+import { render, View, Text } from 'bubble-ui';
 import * as PIXI from 'pixi.js';
 
 const app = new PIXI.Application({ width: 800, height: 600, backgroundColor: 0x1099bb });

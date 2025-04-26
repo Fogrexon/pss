@@ -7,7 +7,7 @@
 ## 基本的な使い方
 
 ```typescript
-import { Button, Text } from 'pixi-style-system';
+import { Button, Text } from 'bubble-ui';
 
 const MyButton = () => {
   return Button({ 

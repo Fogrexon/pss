@@ -2,12 +2,12 @@
 
 # View コンポーネント
 
-`View` は、Pixi Style System における最も基本的なレイアウトコンテナコンポーネントです。他のコンポーネントを子要素として含み、Flexbox ライクなレイアウトやスタイリングを適用するための基盤となります。
+`View` は、BubbleUI における最も基本的なレイアウトコンテナコンポーネントです。他のコンポーネントを子要素として含み、Flexbox ライクなレイアウトやスタイリングを適用するための基盤となります。
 
 ## 基本的な使い方
 
 ```typescript
-import { View } from 'pixi-style-system';
+import { View } from 'bubble-ui';
 
 const MyLayout = () => {
   return View({ 

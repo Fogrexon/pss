@@ -2,7 +2,7 @@
 
 # アーキテクチャ
 
-Pixi Style System は、React のような宣言的な UI 記述と、CSS のようなスタイリング機構を PixiJS 上で実現することを目指します。
+BubbleUI は、React のような宣言的な UI 記述と、CSS のようなスタイリング機構を PixiJS 上で実現することを目指します。
 
 ## コアコンセプト
 
