@@ -24,25 +24,15 @@ export class Renderer {
      * @param container The target PixiJS container for rendering.
      */
     public render(element: VNode | null, container: RenderTarget): void {
-        if (!container) {
-            console.error('Render target container is required.');
-            return;
-        }
-
         const targetContainer = container instanceof Application ? container.stage : container;
 
-        // Delegate processing to the reconciler
         this.reconcilerInstance.reconcile(element, this.rootVNode, targetContainer);
 
-        // Update the root VNode after rendering
         this.rootVNode = element;
         if (element) {
             this.rootContainer = targetContainer;
         } else {
-            // Clear container reference if element is null (unmount)
             this.rootContainer = null;
         }
     }
-
-    // TODO: Implement additional methods like unmountComponentAtNode if needed
 }

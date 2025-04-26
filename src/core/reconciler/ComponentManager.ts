@@ -1,54 +1,57 @@
-// filepath: c:\projects\bubble-ui\src\core\reconciler\ComponentManager.ts
 import { VNode } from '../types';
 
 /**
- * コンポーネント管理のインターフェース
- * 関数コンポーネントを実行してVNodeツリーに変換します
+ * Interface for component management.
+ * Responsible for executing function components and resolving them into VNode trees.
  */
 export interface IComponentManager {
     /**
-     * 関数コンポーネントを実行し、その結果のVNodeを返します。
-     * @param vnode 関数コンポーネントのVNode
-     * @returns 関数コンポーネントが返すVNode
+     * Executes a function component and returns the resulting VNode.
+     * Handles recursive resolution if a component returns another component.
+     * @param vnode The VNode representing the function component.
+     * @returns The resolved VNode tree produced by the component, or null if the component returns null or errors.
      */
     resolveComponent(vnode: VNode): VNode | null;
 }
 
 /**
- * ComponentManagerの実装クラス
- * 関数コンポーネントの実行と解決を担当します
+ * Implementation class for ComponentManager.
+ * Handles the execution and resolution of function components.
  */
 export class ComponentManager implements IComponentManager {
     /**
-     * 関数コンポーネントを実行し、その結果のVNodeを返します。
-     * @param vnode 関数コンポーネントのVNode
-     * @returns 関数コンポーネントが返すVNode
+     * Executes a function component and returns its resulting VNode.
+     * If the component returns another component, it resolves recursively.
+     * @param vnode The VNode representing the function component.
+     * @returns The resolved VNode tree, or null if the component returns null or an error occurs.
      */
     resolveComponent(vnode: VNode): VNode | null {
+        // Check if the VNode type is a function (indicating a component)
         if (typeof vnode.type === 'function') {
             try {
-                // 関数コンポーネントを実行
+                // Execute the function component with its props
                 const result = vnode.type(vnode.props);
 
-                // 関数コンポーネントが null を返した場合は null を返す
+                // Handle cases where the component returns null
                 if (!result) {
                     return null;
                 }
 
-                // 子の子供もコンポーネントかもしれないので再帰的に解決
+                // If the result is another function component, resolve it recursively
                 if (typeof result.type === 'function') {
                     return this.resolveComponent(result);
                 }
 
-                // 解決された VNode を返す
+                // Return the resolved VNode
                 return result;
             } catch (error) {
+                // Log errors during component resolution
                 console.error(`Error resolving component ${vnode.type.name || 'Anonymous'}:`, error);
-                return null;
+                return null; // Return null on error
             }
         }
 
-        // 通常の要素の場合はそのまま返す
+        // If it's not a function component (e.g., a host element like 'div'), return the VNode as is
         return vnode;
     }
 }

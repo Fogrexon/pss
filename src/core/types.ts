@@ -1,43 +1,49 @@
 import { Application, Container } from 'pixi.js';
-// 仮想DOM要素のタイプ
-// eslint-disable-next-line no-use-before-define
-export type ElementType = string | FunctionComponent; // PixiJSプリミティブ要素名 (例: 'container', 'sprite', 'text') または FunctionComponent
 
-// プロパティ (属性とスタイルを含む)
+// eslint-disable-next-line no-use-before-define
+export type ElementType = string | FunctionComponent;
+
+/**
+ * Property interface
+ */
 export interface Props {
-  key?: string | number; // 要素の同一性を識別するためのキー
+  key?: string | number;
   [key: string]: any;
   // eslint-disable-next-line no-use-before-define
   children?: VNode[];
-  style?: Record<string, any>; // スタイルオブジェクト (styles/types.ts で詳細化)
-  // イベントハンドラなどもここに含まれる (例: onClick: () => void)
+  style?: Record<string, any>;
 }
 
-// 仮想DOMノード
+/**
+ * Virtual DOM node
+ */
 export interface VNode {
   type: ElementType;
   props: Props;
-  // 内部的に使用するフィールド
-  _pixiInstance?: Container | null; // 対応するPixiJSインスタンス
-  _children?: VNode[]; // 子要素のVNode (props.children を処理したもの)
-  _parent?: VNode | null; // 親VNode
-  _depth?: number; // ツリーの深さ
-  // 必要に応じて他の内部状態を追加 (例: _state, _effects)
+  _pixiInstance?: Container | null;
+  _children?: VNode[];
+  _parent?: VNode | null;
+  _depth?: number;
 }
 
-// 関数コンポーネントの型
+/**
+ * Function component type
+ */
 export type FunctionComponent<P = {}> = (props: P & { children?: VNode[] }) => VNode | null;
 
-// レンダーターゲット (PixiJSアプリケーションまたはコンテナ)
+/**
+ * Render target
+ */
 export type RenderTarget = Application | Container;
 
-// リコンサイラが扱う作業単位 (Fiberのような概念の簡易版)
+/**
+ * Work unit for reconciler
+ */
 export interface WorkUnit {
   vnode: VNode;
   effectTag: 'PLACEMENT' | 'UPDATE' | 'DELETION';
-  alternate?: VNode; // 前回のVNode
-  nextSibling?: VNode | null; // 配置時に、この兄弟ノードの前に挿入される
+  alternate?: VNode;
+  nextSibling?: VNode | null;
 }
 
-// 必要に応じて他の型定義を追加
-// 例: export type EffectTag = 'PLACEMENT' | 'UPDATE' | 'DELETION'
+// TODO: Add other type definitions as needed

@@ -19,41 +19,30 @@ src/
 │   ├── View.ts       # View コンポーネントの実装
 │   ├── Text.ts       # Text コンポーネントの実装
 │   ├── Button.ts     # Button コンポーネントの実装
-│   ├── Input.ts      # Input コンポーネントの実装 (HTML Input 要素のオーバーレイなどが必要になる可能性)
+│   ├── Input.ts      # Input コンポーネントの実装
 │   └── index.ts      # components モジュールのエントリーポイント
 ├── core/             # ライブラリの中核機能
 │   ├── reconciler/     # リコンサイラ関連
-│   │   ├── diff.ts       # 仮想DOMの差分検出 (Diffing)
-│   │   ├── commit.ts     # PixiJSオブジェクトへの変更適用 (Commit Phase)
-│   │   ├── component.ts  # コンポーネントインスタンス管理 (将来的な拡張用)
-│   │   ├── events.ts     # イベントハンドリングの紐付け
+│   │   ├── Differ.ts     # 仮想DOMの差分検出 (Diffing)
+│   │   ├── Committer.ts  # PixiJSオブジェクトへの変更適用 (Commit Phase)
+│   │   ├── ComponentManager.ts # コンポーネントインスタンス管理
+│   │   ├── EventManager.ts # イベントハンドリングの紐付け
 │   │   ├── index.ts      # reconciler モジュールのエントリーポイント
 │   │   └── Reconciler.ts # デフォルトのリコンサイラ実装
+│   ├── createElement.ts # 要素作成関数 (JSXで使用)
+│   ├── createRenderer.ts# レンダラー作成関数
 │   ├── Renderer.ts     # PixiJS アプリケーションへのレンダリング処理
 │   ├── types.ts        # コア機能で使う型定義
-│   └── index.ts      # core モジュールのエントリーポイント (reconciler, renderer を集約)
-├── layout/           # レイアウト計算
-│   ├── yoga.ts         # Yoga Layout のラッパーまたは実装
-│   └── index.ts      # layout モジュールのエントリーポイント
+│   └── index.ts      # core モジュールのエントリーポイント
 ├── styles/           # スタイリング関連
-│   ├── applyStyles.ts  # 各デコーダーを呼び出しスタイルを適用するメイン関数
-│   ├── decoders/       # スタイルプロパティのデコードと適用ロジック
-│   │   ├── layout.ts     # Flexbox関連のスタイル (Yogaへの適用が主)
-│   │   ├── appearance.ts # backgroundColor, border, opacity など
-│   │   ├── text.ts       # fontSize, color, fontFamily など (PIXI.TextStyle へ)
-│   │   ├── pixi.ts       # tint, interactive, cursor など Pixi固有プロパティ
-│   │   └── index.ts      # decoders モジュールのエントリーポイント
-│   ├── parser.ts       # スタイル値 (数値, 文字列, 配列) の解析 (例: '10px' -> 10)
-│   ├── types.ts        # スタイル関連の型定義 (StyleProps など)
+│   ├── layout.ts     # Flexbox関連のスタイル (Yogaへの適用)
+│   ├── appearance.ts # backgroundColor, border, opacity など
+│   ├── text.ts       # fontSize, color, fontFamily など (PIXI.TextStyle へ)
+│   ├── pixi.ts       # tint, interactive, cursor など Pixi固有プロパティ
+│   ├── animation.ts  # アニメーション関連
 │   └── index.ts      # styles モジュールのエントリーポイント
-├── animation/        # アニメーション機能 (簡易)
-│   ├── applyAnimation.ts # animationName に基づいてアニメーションを適用
-│   ├── types.ts        # アニメーション関連の型定義
-│   └── index.ts      # animation モジュールのエントリーポイント
-├── types/            # グローバルな型定義
-│   └── index.ts
-├── utils/            # ユーティリティ関数
-│   └── index.ts      # utils モジュールのエントリーポイント
+├── examples/         # 使用例
+│   └── basic-usage.ts
 └── index.ts          # ライブラリ全体のエントリーポイント (公開 API)
 ```
 

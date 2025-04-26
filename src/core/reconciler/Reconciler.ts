@@ -1,4 +1,3 @@
-// filepath: c:\projects\bubble-ui\src\core\reconciler\Reconciler.ts
 import { Container } from 'pixi.js';
 import { VNode } from '../types';
 import { ICommitter } from './Committer';
@@ -7,33 +6,36 @@ import { IDiffer } from './Differ';
 import { IEventManager } from './EventManager';
 
 /**
- * リコンサイラのインターフェース
- * 仮想DOMツリーの調整処理を担当します
+ * Interface for the Reconciler.
+ * Responsible for the reconciliation process of the virtual DOM tree.
  */
 export interface IReconciler {
     /**
-     * 仮想DOMツリーの調整（差分検出と適用）を実行します。
-     * @param element 新しいルート仮想DOM要素
-     * @param oldVNode 前回のルート仮想DOM要素 (初回レンダリング時は null)
-     * @param container レンダー先のPixiJSコンテナ
+     * Performs the reconciliation (diffing and committing) of the virtual DOM tree.
+     * @param element The new root virtual DOM element.
+     * @param oldVNode The previous root virtual DOM element (null on initial render).
+     * @param container The PixiJS container to render into.
      */
     reconcile(element: VNode | null, oldVNode: VNode | null, container: Container): void;
 }
 
 /**
- * リコンサイラの実装クラス
- * 仮想DOMと実際のPixiJSオブジェクトの同期を管理します
+ * Implementation class for the Reconciler.
+ * Manages the synchronization between the virtual DOM and the actual PixiJS objects.
+ * Orchestrates the diffing and committing phases.
  */
 export class Reconciler implements IReconciler {
     private componentManager: IComponentManager;
     private differ: IDiffer;
     private committer: ICommitter;
-    
+    // Note: EventManager is injected but not directly used by Reconciler itself in this structure.
+    // It's used by the Committer.
+
     constructor(
         componentManager: IComponentManager,
         differ: IDiffer,
         committer: ICommitter,
-        eventManager: IEventManager
+        eventManager: IEventManager // Keep injection for Committer dependency
     ) {
         this.componentManager = componentManager;
         this.differ = differ;
@@ -41,18 +43,23 @@ export class Reconciler implements IReconciler {
     }
 
     /**
-     * 仮想DOMツリーの調整（差分検出と適用）を実行します。
-     * @param element 新しいルート仮想DOM要素
-     * @param oldVNode 前回のルート仮想DOM要素 (初回レンダリング時は null)
-     * @param container レンダー先のPixiJSコンテナ
+     * Performs the reconciliation (diffing and committing) of the virtual DOM tree.
+     * If the root element is a component, it resolves the component first.
+     * Then, it calculates the differences (WorkUnits) and applies them via the Committer.
+     * @param element The new root virtual DOM element.
+     * @param oldVNode The previous root virtual DOM element (null on initial render).
+     * @param container The PixiJS container to render into.
      */
     reconcile(element: VNode | null, oldVNode: VNode | null, container: Container): void {
+        // Resolve the component if the root element is a function component
         const resolvedElement = element && typeof element.type === 'function'
             ? this.componentManager.resolveComponent(element)
             : element;
 
+        // Calculate the differences between the new and old trees
         const workUnits = this.differ.diff(resolvedElement, oldVNode);
 
+        // Apply the calculated changes to the PixiJS stage
         this.committer.commitWork(workUnits, container);
     }
 }

@@ -1,48 +1,61 @@
-// filepath: c:\projects\bubble-ui\src\core\createElement.ts
-import { VNode, ElementType, Props } from './types';
+import { Container } from 'pixi.js';
+import { VNode, VNodeProps } from './types';
 
 /**
- * Creates a virtual DOM element (VNode).
- * Similar to React's createElement function.
- * 
- * @param type The type of element to create (string tag name or function component)
- * @param props The properties to apply to the element
- * @param children Child elements to include
- * @returns A virtual DOM element
+ * Creates a Virtual DOM Node (VNode).
+ * Represents a UI element in the virtual tree.
+ *
+ * @param type The type of the element (e.g., 'View', 'Text', or a custom component function/class).
+ * @param props The properties (attributes and event listeners) for the element.
+ * @param children Child VNodes or primitive values (string, number).
+ * @returns A VNode object.
  */
 export function createElement(
-  type: ElementType,
-  props: Props | null = null,
-  ...children: (VNode | string | number | boolean | null | undefined)[]
+    type: VNode['type'],
+    props: VNodeProps | null,
+    ...children: (VNode | string | number | null)[]
 ): VNode {
-  // Process and normalize props
-  const normalizedProps: Props = props ? { ...props } : {};
-  
-  // Process children and add them to props
-  if (children.length > 0) {
-    // Filter and normalize children
+    const normalizedProps: VNodeProps = props || {};
+
+    // Flatten and filter out null/undefined children, convert primitives to text VNodes
     const normalizedChildren = children
-      .flat() // Flatten any nested arrays
-      .filter(child => child !== null && child !== undefined && child !== false)
-      .map(child => {
-        // Convert primitive values to text nodes
-        if (typeof child === 'string' || typeof child === 'number') {
-          return {
-            type: 'text',
-            props: { content: String(child) },
-          };
-        }
-        return child as VNode;
-      });
-    
-    if (normalizedChildren.length > 0) {
-      normalizedProps.children = normalizedChildren;
-    }
-  }
-  
-  // Create and return the VNode
-  return {
-    type,
-    props: normalizedProps,
-  };
+        .flat()
+        .filter(child => child !== null && child !== undefined)
+        .map(child =>
+            typeof child === 'string' || typeof child === 'number'
+                ? createTextVNode(String(child))
+                : child
+        );
+
+    normalizedProps.children = normalizedChildren.length === 1
+        ? normalizedChildren[0]
+        : normalizedChildren;
+
+    return {
+        type,
+        props: normalizedProps,
+        key: normalizedProps.key || null,
+        // Internal fields used by the reconciler, initialized later
+        _instance: null,
+        _renderedChildren: [],
+        _parent: null,
+        _depth: 0,
+    };
+}
+
+/**
+ * Creates a VNode specifically for representing text content.
+ * @param text The string content.
+ * @returns A VNode of type 'TEXT'.
+ */
+function createTextVNode(text: string): VNode {
+    return {
+        type: 'TEXT', // Special type for text nodes
+        props: { children: text },
+        key: null,
+        _instance: null,
+        _renderedChildren: [],
+        _parent: null,
+        _depth: 0,
+    };
 }

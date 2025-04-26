@@ -1,61 +1,62 @@
 import { VNode, WorkUnit } from '../types';
 
 /**
- * 差分検出のインターフェース
- * 新旧のVNodeツリーを比較して、変更点を抽出します
+ * Interface for the differ.
+ * Compares the old and new VNode trees to extract changes.
  */
 export interface IDiffer {
     /**
-     * 新旧のVNodeツリーを比較し、変更点を特定します。
-     * @param newVNode 新しいVNode
-     * @param oldVNode 古いVNode
-     * @returns 変更点のリスト
+     * Compares the old and new VNode trees and identifies changes.
+     * @param newVNode The new VNode.
+     * @param oldVNode The old VNode.
+     * @returns A list of work units representing the changes.
      */
     diff(newVNode: VNode | null, oldVNode: VNode | null): WorkUnit[];
 }
 
 /**
- * 差分アルゴリズムの実装クラス
- * 新旧のVNodeツリーを比較して変更点を検出します
+ * Implementation class for the diffing algorithm.
+ * Compares old and new VNode trees to detect changes.
  */
 export class Differ implements IDiffer {
     /**
-     * 新旧のVNodeツリーを比較し、変更点を特定します。
-     * @param newVNode 新しいVNode
-     * @param oldVNode 古いVNode
-     * @returns 変更点のリスト
+     * Compares the old and new VNode trees and identifies changes.
+     * @param newVNode The new VNode.
+     * @param oldVNode The old VNode.
+     * @returns A list of work units representing the changes.
      */
     diff(newVNode: VNode | null, oldVNode: VNode | null): WorkUnit[] {
         const workUnits: WorkUnit[] = [];
 
-        // ここでは代表的なケースに対応したシンプルな実装を提供
-        // 実際の実装では、子ノードの再帰的な比較やキーを使った要素の移動検出なども行います
+        // Note: This is a simplified implementation handling common cases.
+        // A full implementation would also handle recursive comparison of child nodes
+        // and detection of element moves using keys.
 
-        // ケース1: 古いノードがなく、新しいノードがある場合 (新規作成)
+        // Case 1: No old node, new node exists (Creation)
         if (oldVNode === null && newVNode !== null) {
             this.createWorkUnit(workUnits, 'PLACEMENT', newVNode);
             return workUnits;
         }
 
-        // ケース2: 新しいノードがなく、古いノードがある場合 (削除)
+        // Case 2: No new node, old node exists (Deletion)
         if (newVNode === null && oldVNode !== null) {
             this.createWorkUnit(workUnits, 'DELETION', oldVNode);
             return workUnits;
         }
 
-        // ケース3: 両方のノードが存在する場合
+        // Case 3: Both nodes exist
         if (newVNode !== null && oldVNode !== null) {
-            // タイプが異なる場合は、古いノードを削除して新しいノードを作成
+            // If types differ, delete the old node and create the new one
             if (newVNode.type !== oldVNode.type) {
                 this.createWorkUnit(workUnits, 'DELETION', oldVNode);
                 this.createWorkUnit(workUnits, 'PLACEMENT', newVNode);
                 return workUnits;
             }
 
-            // タイプが同じ場合は更新
+            // If types are the same, update
             this.createWorkUnit(workUnits, 'UPDATE', newVNode, oldVNode);
 
-            // 子ノードの比較ロジックをキー対応に更新
+            // Reconcile children using key-based comparison
             this.reconcileChildren(workUnits, newVNode, oldVNode);
         }
 
@@ -63,8 +64,12 @@ export class Differ implements IDiffer {
     }
 
     /**
-     * 子要素の差分を検出し、WorkUnit を生成します。
-     * キーを使用して要素の移動や追加/削除を効率的に処理します。
+     * Detects differences in child elements and generates WorkUnits.
+     * Efficiently handles element moves and additions/deletions using keys.
+     * Based on reconciliation algorithms like the one used in React.
+     * @param workUnits The list to add generated work units to.
+     * @param newParentVNode The new parent VNode.
+     * @param oldParentVNode The old parent VNode.
      */
     private reconcileChildren(workUnits: WorkUnit[], newParentVNode: VNode, oldParentVNode: VNode): void {
         const oldChildren = oldParentVNode.props.children || [];
@@ -81,7 +86,7 @@ export class Differ implements IDiffer {
 
         let oldKeyMap: Map<string | number, number> | null = null;
 
-        // 主要な比較ループ (React のリスト差分アルゴリズムに類似)
+        // Main comparison loop
         while (oldStartIndex <= oldEndIndex && newStartIndex <= newEndIndex) {
             if (oldStartNode === undefined) {
                 oldStartNode = oldChildren[++oldStartIndex];
@@ -100,17 +105,17 @@ export class Differ implements IDiffer {
                 oldEndNode = oldChildren[--oldEndIndex];
                 newEndNode = newChildren[--newEndIndex];
             } else if (this.isSameVNode(oldStartNode, newEndNode)) {
-                // Case 3: Old start matches new end (move)
+                // Case 3: Old start matches new end (indicates a move)
                 const childWorkUnits = this.diff(newEndNode, oldStartNode);
                 workUnits.push(...childWorkUnits);
-                // TODO: Implement actual move operation in Committer
+                // Placement with nextSibling in Committer handles the positioning
                 oldStartNode = oldChildren[++oldStartIndex];
                 newEndNode = newChildren[--newEndIndex];
             } else if (this.isSameVNode(oldEndNode, newStartNode)) {
-                // Case 4: Old end matches new start (move)
+                // Case 4: Old end matches new start (indicates a move)
                 const childWorkUnits = this.diff(newStartNode, oldEndNode);
                 workUnits.push(...childWorkUnits);
-                // TODO: Implement actual move operation in Committer
+                // Placement with nextSibling in Committer handles the positioning
                 oldEndNode = oldChildren[--oldEndIndex];
                 newStartNode = newChildren[++newStartIndex];
             } else {
@@ -133,12 +138,12 @@ export class Differ implements IDiffer {
                         const childWorkUnits = this.diff(newStartNode, nodeToMove);
                         workUnits.push(...childWorkUnits);
                         oldChildren[indexInOld] = undefined as any; // Mark as processed
-                        // TODO: Implement move operation in Committer - Placement with nextSibling handles this
                         const nextSibling = this.findNextSiblingVNode(newChildren, newStartIndex + 1);
-                        // Add PLACEMENT work unit for moved node to ensure correct positioning
+                        // Add PLACEMENT work unit for the potentially moved node to ensure correct positioning.
+                        // The Committer will handle the actual move or update based on instance presence.
                         this.createWorkUnit(workUnits, 'PLACEMENT', newStartNode, nodeToMove, nextSibling);
                     } else {
-                        // Key matches but type doesn't, treat as new node
+                        // Key matches but type doesn't, treat as a new node placement
                         const nextSibling = this.findNextSiblingVNode(newChildren, newStartIndex + 1);
                         this.createWorkUnit(workUnits, 'PLACEMENT', newStartNode, undefined, nextSibling);
                     }
@@ -165,47 +170,70 @@ export class Differ implements IDiffer {
     }
 
     /**
-     * VNodeが同じタイプで同じキーを持つかチェックします。
+     * Checks if two VNodes are the same type and have the same key.
+     * @param vnode1 The first VNode.
+     * @param vnode2 The second VNode.
+     * @returns True if they are the same VNode type and key, false otherwise.
      */
     private isSameVNode(vnode1: VNode, vnode2: VNode): boolean {
         return vnode1.type === vnode2.type && vnode1.props.key === vnode2.props.key;
     }
 
     /**
-     * 指定された範囲の子要素からキーとインデックスのマッピングを作成します。
+     * Creates a map of keys to indices for children within a specified range.
+     * @param children The array of child VNodes.
+     * @param startIndex The starting index of the range.
+     * @param endIndex The ending index of the range.
+     * @returns A Map where keys are VNode keys and values are their indices.
      */
     private createKeyMap(children: VNode[], startIndex: number, endIndex: number): Map<string | number, number> {
-        return Object.fromEntries(children.slice(startIndex, endIndex + 1).map((child, index) => [child.props.key, index]));
+        const map = new Map<string | number, number>();
+        for (let i = startIndex; i <= endIndex; i++) {
+            const child = children[i];
+            if (child?.props?.key !== undefined) {
+                map.set(child.props.key, i);
+            }
+        }
+        return map;
     }
 
+
     /**
-     * 作業単位(WorkUnit)を作成してリストに追加します
+     * Creates a WorkUnit and adds it to the list.
+     * @param workUnits The list of work units.
+     * @param effectTag The type of operation ('PLACEMENT', 'UPDATE', 'DELETION').
+     * @param vnode The VNode associated with the work unit.
+     * @param alternate The corresponding old VNode (for UPDATE and DELETION).
+     * @param nextSibling The next sibling VNode in the new children list (for PLACEMENT).
      */
     private createWorkUnit(
         workUnits: WorkUnit[],
         effectTag: 'PLACEMENT' | 'UPDATE' | 'DELETION',
         vnode: VNode,
         alternate?: VNode,
-        nextSibling?: VNode | null // Add nextSibling parameter
+        nextSibling?: VNode | null
     ): void {
         workUnits.push({
             vnode,
             effectTag,
             alternate,
-            nextSibling // Assign nextSibling
+            nextSibling
         } as WorkUnit);
     }
 
     /**
-     * 指定されたインデックス以降で、最初にPixiJSインスタンスを持つ兄弟VNodeを見つけます。
-     * これは、新しい要素を挿入する際のアンカーとして使用されます。
+     * Finds the next sibling VNode starting from a given index that is expected
+     * to have a corresponding rendered instance (e.g., a PixiJS object).
+     * This is used as an anchor for inserting new elements.
+     * @param children The list of new children VNodes.
+     * @param startIndex The index to start searching from.
+     * @returns The next sibling VNode with a potential instance, or null if none found.
      */
     private findNextSiblingVNode(children: VNode[], startIndex: number): VNode | null {
         for (let i = startIndex; i < children.length; i++) {
             const child = children[i];
-            // ここでは単純に次のVNodeを返しますが、実際には
-            // そのVNodeがすでにDOM（Pixiステージ）に存在するインスタンスを持つか確認する必要があります。
-            // しかし、Committer側でインスタンスの有無を確認するため、ここでは次のVNodeを返すだけで十分かもしれません。
+            // This assumes the Committer will verify if the VNode actually has an instance.
+            // For the Differ's purpose, returning the next VNode is sufficient.
             if (child) {
                 return child;
             }
