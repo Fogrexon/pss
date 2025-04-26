@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2401fe75-549c-4754-853d-a9e860bbe739" name="Changes" comment="fix: gitignore" />
+    <list default="true" id="2401fe75-549c-4754-853d-a9e860bbe739" name="Changes" comment="fix: gitignore">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -138,7 +140,7 @@
       <workItem from="1718674748503" duration="2000" />
       <workItem from="1723597011348" duration="161000" />
       <workItem from="1728205461798" duration="2628000" />
-      <workItem from="1745641046115" duration="786000" />
+      <workItem from="1745641046115" duration="2247000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update base settings">
       <option name="closed" value="true" />
