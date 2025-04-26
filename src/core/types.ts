@@ -7,7 +7,7 @@ export type ElementType = string | FunctionComponent;
  * Property interface
  */
 export interface Props {
-  key?: string | number;
+  _key?: string | number;
   [key: string]: any;
   // eslint-disable-next-line no-use-before-define
   children?: VNode[];

@@ -63,33 +63,27 @@ export class Committer implements ICommitter {
      * @param defaultContainer The default container if no parent is found.
      */
     private commitPlacement(workUnit: WorkUnit, defaultContainer: Container): void {
-        const { vnode, nextSibling } = workUnit; // nextSibling を取得
+        const { vnode, nextSibling } = workUnit;
 
-        // 親ノードを特定
         const parentContainer = this.findParentContainer(vnode, defaultContainer);
 
-        // VNodeタイプに応じたPixiJSインスタンスを作成
         const pixiInstance = this.createPixiInstance(vnode);
 
         if (pixiInstance) {
-            // VNodeとPixiインスタンスを関連付け
             vnode._pixiInstance = pixiInstance;
 
-            // イベントハンドラの適用
             this.eventManager.applyEventHandlers(pixiInstance, {}, vnode.props);
 
-            // 挿入位置を決定
             const anchorInstance = nextSibling?._pixiInstance;
             let index = -1;
             if (anchorInstance && anchorInstance.parent === parentContainer) {
                 index = parentContainer.getChildIndex(anchorInstance);
             }
 
-            // 親コンテナに正しい位置で追加
             if (index !== -1) {
                 parentContainer.addChildAt(pixiInstance, index);
             } else {
-                parentContainer.addChild(pixiInstance); // 末尾に追加
+                parentContainer.addChild(pixiInstance);
             }
         }
     }
@@ -103,17 +97,14 @@ export class Committer implements ICommitter {
         const { vnode, alternate } = workUnit;
 
         if (!alternate || !vnode._pixiInstance) {
-            // Should not happen if reconciliation logic is correct
             console.warn('Cannot update - missing alternate VNode or PixiJS instance.');
             return;
         }
 
         const pixiInstance = vnode._pixiInstance;
 
-        // プロパティの更新
         this.updatePixiInstanceProps(pixiInstance, alternate.props, vnode.props);
 
-        // イベントハンドラの更新
         this.eventManager.applyEventHandlers(pixiInstance, alternate.props, vnode.props);
     }
 
@@ -128,15 +119,12 @@ export class Committer implements ICommitter {
         if (vnode._pixiInstance) {
             const pixiInstance = vnode._pixiInstance;
 
-            // 親から削除
             if (pixiInstance.parent) {
                 pixiInstance.parent.removeChild(pixiInstance);
             }
 
-            // PixiJSインスタンスの破棄
             pixiInstance.destroy({ children: true });
 
-            // 参照解除
             vnode._pixiInstance = null;
         }
         // Recursively delete children instances if necessary (handled by destroy({children: true}))
@@ -149,11 +137,8 @@ export class Committer implements ICommitter {
      * @returns The created PixiJS Container or null if creation fails.
      */
     private createPixiInstance(vnode: VNode): Container | null {
-        // TODO: Implement actual instance creation based on vnode.type
-        // e.g., 'sprite', 'text', 'graphics', custom components
-        // For now, creates a simple Container as a placeholder.
+        // TODO: Implement instance creation based on vnode.type
         const instance = new Container();
-        // Apply initial props (excluding children and events, handled elsewhere)
         this.updatePixiInstanceProps(instance, {}, vnode.props);
         return instance;
     }
@@ -169,16 +154,12 @@ export class Committer implements ICommitter {
         oldProps: Record<string, any>,
         newProps: Record<string, any>
     ): void {
-        // TODO: Implement comprehensive prop updates based on type
-        // (position, scale, tint, texture, text content, styles, etc.)
-        // Handle removal of props not present in newProps but present in oldProps.
+        // TODO: Implement comprehensive prop updates
 
-        // Basic example properties:
         if (newProps.x !== oldProps.x) pixiInstance.x = newProps.x ?? 0;
         if (newProps.y !== oldProps.y) pixiInstance.y = newProps.y ?? 0;
         if (newProps.alpha !== oldProps.alpha) pixiInstance.alpha = newProps.alpha ?? 1;
         if (newProps.visible !== oldProps.visible) pixiInstance.visible = newProps.visible ?? true;
-        // Add more property updates here (e.g., scale, rotation, tint)
     }
 
     /**

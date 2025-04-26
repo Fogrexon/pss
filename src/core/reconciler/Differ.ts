@@ -124,7 +124,7 @@ export class Differ implements IDiffer {
                     oldKeyMap = this.createKeyMap(oldChildren, oldStartIndex, oldEndIndex);
                 }
 
-                const key = newStartNode.props.key;
+                const key = newStartNode.props._key;
                 const indexInOld = key !== undefined ? oldKeyMap.get(key) : undefined;
 
                 if (indexInOld === undefined) {
@@ -176,7 +176,7 @@ export class Differ implements IDiffer {
      * @returns True if they are the same VNode type and key, false otherwise.
      */
     private isSameVNode(vnode1: VNode, vnode2: VNode): boolean {
-        return vnode1.type === vnode2.type && vnode1.props.key === vnode2.props.key;
+        return vnode1.type === vnode2.type && vnode1.props._key === vnode2.props._key;
     }
 
     /**
@@ -190,8 +190,8 @@ export class Differ implements IDiffer {
         const map = new Map<string | number, number>();
         for (let i = startIndex; i <= endIndex; i++) {
             const child = children[i];
-            if (child?.props?.key !== undefined) {
-                map.set(child.props.key, i);
+            if (child?.props?._key !== undefined) {
+                map.set(child.props._key, i);
             }
         }
         return map;

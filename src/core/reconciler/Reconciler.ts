@@ -51,15 +51,12 @@ export class Reconciler implements IReconciler {
      * @param container The PixiJS container to render into.
      */
     reconcile(element: VNode | null, oldVNode: VNode | null, container: Container): void {
-        // Resolve the component if the root element is a function component
         const resolvedElement = element && typeof element.type === 'function'
             ? this.componentManager.resolveComponent(element)
             : element;
 
-        // Calculate the differences between the new and old trees
         const workUnits = this.differ.diff(resolvedElement, oldVNode);
 
-        // Apply the calculated changes to the PixiJS stage
         this.committer.commitWork(workUnits, container);
     }
 }
