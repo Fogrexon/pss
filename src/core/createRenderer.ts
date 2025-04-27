@@ -1,32 +1,29 @@
+import { Container } from 'pixi.js';
 import {
   Reconciler,
   ComponentManager,
   Differ,
-  Committer,
-  EventManager
+  EventManager,
+  IRendererAdaptor
 } from './reconciler';
 import { Renderer } from './Renderer';
 
 /**
  * Creates a renderer instance with all necessary dependencies configured.
- * This factory function instantiates and wires together the core components
- * (EventManager, ComponentManager, Differ, Committer, Reconciler)
- * required for the rendering process, simplifying setup for the user.
- *
- * @returns A fully configured and ready-to-use Renderer instance.
+ * @returns A configured Renderer instance.
  */
-export const createRenderer = (): Renderer => {
+export const createRenderer = <TargetElement = Container>
+  (rendererAdaptor: IRendererAdaptor<TargetElement>): Renderer<TargetElement> => {
   const eventManager = new EventManager();
   const componentManager = new ComponentManager();
   const differ = new Differ();
-  const committer = new Committer(eventManager);
 
-  const reconciler = new Reconciler(
+  const reconciler = new Reconciler<TargetElement>(
     componentManager,
     differ,
-    committer,
-    eventManager
+    eventManager,
+    rendererAdaptor
   );
 
-  return new Renderer(reconciler);
+  return new Renderer<TargetElement>(reconciler);
 }

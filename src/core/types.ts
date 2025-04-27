@@ -26,10 +26,10 @@ export interface VNode {
   // for plaintext content
   _text?: string | number | null;
   
-  _pixiInstance?: Container | null;
   _children?: VNode[];
   _parent?: VNode | null;
   _depth?: number;
+  sibling?: VNode | null; // Pointer to the next sibling VNode
 }
 
 /**

@@ -13,12 +13,18 @@ Bubble UI is a UI component library built with TypeScript. It provides a set of 
 
 ## Coding Conventions
 - Use TypeScript for all new code
-- Use arrow functions for all function definitions instead of traditional function declarations
+- Use arrow functions for standalone function definitions instead of traditional function declarations. Class methods can use the standard method syntax.
 - Follow existing code style and patterns
 - Comment public functions and classes with JSDoc
 - Minimize inline comments; use them only for complex logic that JSDoc cannot adequately explain. Rely primarily on JSDoc for documenting functions, classes, and types.
 - Maintain type safety
 - Write unit tests for new functionality
+- Avoid adding unnecessary comments or blank lines.
+- Edit files directly when necessary, without asking for confirmation in chat.
+
+## Interaction Preferences
+- Respond in Japanese in chat.
+- Write code comments in English.
 
 ## Pull Request Expectations
 - All tests should pass

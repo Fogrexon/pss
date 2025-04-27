@@ -16,7 +16,6 @@ export const createElement = (
 ): VNode => {
     const normalizedProps: Props = { ...props || {} };
 
-    // Flatten and filter out null/undefined children, convert primitives to text VNodes
     const normalizedChildren = children
         .flat()
         .filter(child => child !== null)
@@ -31,7 +30,6 @@ export const createElement = (
         type,
         props: normalizedProps,
         _key: normalizedProps.key,
-        // Internal fields used by the reconciler, initialized later
         _parent: null,
         _depth: 0,
     };
@@ -40,14 +38,13 @@ export const createElement = (
 /**
  * Creates a VNode specifically for representing text content.
  * @param text The string content.
- * @returns A VNode of type 'TEXT'.
+ * @returns A VNode of type 'PRIMITIVE'.
  */
 const createTextVNode = (text: string): VNode => {
     return {
-        type: 'plaintext',
+        type: 'PRIMITIVE',
         props: {},
         _text: text,
-        _pixiInstance: null,
         _parent: null,
         _depth: 0,
     };

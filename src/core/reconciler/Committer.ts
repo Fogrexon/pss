@@ -1,183 +1,233 @@
-import { Container } from 'pixi.js';
 import { VNode, WorkUnit } from '../types';
-import { IEventManager } from './EventManager';
+import { IRendererAdaptor } from './IRendererAdaptor';
 
 /**
- * Interface for the commit phase.
- * Applies the detected changes (WorkUnits) to the actual PixiJS objects.
+ * Interface for the committer.
+ * Applies the changes (WorkUnits) to the actual rendering target.
  */
-export interface ICommitter {
+export interface ICommitter<TargetElement = unknown> {
     /**
-     * Applies the work units to the PixiJS objects.
-     * @param workUnits The list of work units to apply.
-     * @param container The root PixiJS container.
+     * Applies a list of work units to the rendering target.
+     * @param workUnits The list of changes to apply.
+     * @param parentVNodeMap A map to find the parent VNode for a given VNode.
      */
-    commitWork(workUnits: WorkUnit[], container: Container): void;
+    commitWork(workUnits: WorkUnit[], parentVNodeMap: WeakMap<VNode, VNode>): void;
+
+    /**
+     * Sets the mapping for the root VNode and its corresponding native element.
+     * @param rootVNode The root VNode of the application.
+     * @param rootElement The root native element (e.g., the PixiJS stage or root container).
+     */
+    setRootElement(rootVNode: VNode, rootElement: TargetElement): void;
+
+    /**
+     * Retrieves the native element corresponding to the root VNode.
+     * @param rootVNode The root VNode.
+     * @returns The corresponding native element, or undefined if not found.
+     */
+    getRootElement(rootVNode: VNode): TargetElement | undefined;
 }
 
 /**
- * Implementation class for the Committer.
- * Applies detected changes to PixiJS objects.
+ * Applies changes identified by the Differ to the rendering target using a RendererAdaptor.
  */
-export class Committer implements ICommitter {
-    private eventManager: IEventManager;
+export class Committer<TargetElement = unknown> implements ICommitter<TargetElement> {
+    private adaptor: IRendererAdaptor<TargetElement>;
+    private nativeNodeMap = new WeakMap<VNode, TargetElement>();
 
-    constructor(eventManager: IEventManager) {
-        this.eventManager = eventManager;
+    constructor(adaptor: IRendererAdaptor<TargetElement>) {
+        this.adaptor = adaptor;
     }
 
-    /**
-     * Applies the work units to the PixiJS objects.
-     * Processes deletions first, then updates and placements.
-     * @param workUnits The list of work units to apply.
-     * @param container The root PixiJS container.
-     */
-    commitWork(workUnits: WorkUnit[], container: Container): void {
-        // 1. Deletions first
-        for (const unit of workUnits) {
-            if (unit.effectTag === 'DELETION') {
-                this.commitDeletion(unit);
-            }
-        }
-
-        // 2. Updates and Placements
-        for (const unit of workUnits) {
-            switch (unit.effectTag) {
-                case 'UPDATE':
-                    this.commitUpdate(unit);
-                    break;
-                case 'PLACEMENT':
-                    this.commitPlacement(unit, container);
-                    break;
-                // DELETION is already handled
-            }
-        }
+    commitWork(workUnits: WorkUnit[], parentVNodeMap: WeakMap<VNode, VNode>): void {
+        // Process in order: Deletions -> Updates -> Placements
+        workUnits.filter(unit => unit.effectTag === 'DELETION').forEach(unit => this.commitDeletion(unit, parentVNodeMap));
+        workUnits.filter(unit => unit.effectTag === 'UPDATE').forEach(unit => this.commitUpdate(unit));
+        workUnits.filter(unit => unit.effectTag === 'PLACEMENT').forEach(unit => this.commitPlacement(unit, parentVNodeMap));
     }
 
-    /**
-     * Commits the placement of a new element.
-     * Creates the PixiJS instance, associates it with the VNode,
-     * applies event handlers, and inserts it into the parent container
-     * at the correct position based on the next sibling.
-     * @param workUnit The work unit for the placement.
-     * @param defaultContainer The default container if no parent is found.
-     */
-    private commitPlacement(workUnit: WorkUnit, defaultContainer: Container): void {
-        const { vnode, nextSibling } = workUnit;
-
-        const parentContainer = this.findParentContainer(vnode, defaultContainer);
-
-        const pixiInstance = this.createPixiInstance(vnode);
-
-        if (pixiInstance) {
-            vnode._pixiInstance = pixiInstance;
-
-            this.eventManager.applyEventHandlers(pixiInstance, {}, vnode.props);
-
-            const anchorInstance = nextSibling?._pixiInstance;
-            let index = -1;
-            if (anchorInstance && anchorInstance.parent === parentContainer) {
-                index = parentContainer.getChildIndex(anchorInstance);
-            }
-
-            if (index !== -1) {
-                parentContainer.addChildAt(pixiInstance, index);
-            } else {
-                parentContainer.addChild(pixiInstance);
-            }
-        }
+    setRootElement(rootVNode: VNode, rootElement: TargetElement): void {
+        this.nativeNodeMap.set(rootVNode, rootElement);
+        this.adaptor.getRootContainer(rootElement);
     }
 
-    /**
-     * Commits updates to an existing element.
-     * Updates the properties and event handlers of the associated PixiJS instance.
-     * @param workUnit The work unit for the update.
-     */
-    private commitUpdate(workUnit: WorkUnit): void {
-        const { vnode, alternate } = workUnit;
+    getRootElement(rootVNode: VNode): TargetElement | undefined {
+        return this.nativeNodeMap.get(rootVNode);
+    }
 
-        if (!alternate || !vnode._pixiInstance) {
-            console.warn('Cannot update - missing alternate VNode or PixiJS instance.');
+
+    // --- Private Commit Methods ---
+
+    private commitPlacement(workUnit: WorkUnit, parentVNodeMap: WeakMap<VNode, VNode>): void {
+        const parentVNode = parentVNodeMap.get(workUnit.vnode);
+        // Root node won't have a parent in the map, but might exist if setRootElement was called
+        if (!parentVNode && !this.nativeNodeMap.has(workUnit.vnode)) {
+            console.error("Cannot commit placement: Parent VNode not found and node is not root.", workUnit.vnode);
             return;
         }
 
-        const pixiInstance = vnode._pixiInstance;
+        const parentElement = parentVNode ? this.nativeNodeMap.get(parentVNode) : null;
+        if (parentVNode && !parentElement) {
+            console.error("Cannot commit placement: Parent element not found for", parentVNode);
+            return;
+        }
 
-        this.updatePixiInstanceProps(pixiInstance, alternate.props, vnode.props);
+        let element: TargetElement;
+        if (workUnit.alternate) { // Move existing element
+            element = this.nativeNodeMap.get(workUnit.alternate) as TargetElement;
+            if (!element) {
+                 console.error("Cannot commit move: Element not found for alternate", workUnit.alternate);
+                 // Fallback: create new element
+                 element = this.createAndMapElement(workUnit.vnode);
+                 this.adaptor.updateElement(element, null, workUnit.vnode);
+            } else {
+                 this.nativeNodeMap.set(workUnit.vnode, element); // Update mapping
+                 this.adaptor.updateElement(element, workUnit.alternate, workUnit.vnode); // Apply updates
+            }
+        } else { // Create new element
+            element = this.createAndMapElement(workUnit.vnode);
+            this.adaptor.updateElement(element, null, workUnit.vnode); // Apply initial props
+        }
 
-        this.eventManager.applyEventHandlers(pixiInstance, alternate.props, vnode.props);
-    }
-
-    /**
-     * Commits the deletion of an element.
-     * Removes the PixiJS instance from its parent, destroys it, and clears the VNode reference.
-     * @param workUnit The work unit for the deletion.
-     */
-    private commitDeletion(workUnit: WorkUnit): void {
-        const { vnode } = workUnit;
-
-        if (vnode._pixiInstance) {
-            const pixiInstance = vnode._pixiInstance;
-
-            if (pixiInstance.parent) {
-                pixiInstance.parent.removeChild(pixiInstance);
+        // Insert into parent
+        if (parentElement) {
+            let beforeElement: TargetElement | null = null;
+            if (workUnit.nextSibling) {
+                beforeElement = this.findNextNativeSibling(workUnit.nextSibling);
             }
 
-            pixiInstance.destroy({ children: true });
-
-            vnode._pixiInstance = null;
-        }
-        // Recursively delete children instances if necessary (handled by destroy({children: true}))
-        // If VNode represents a component, its children are handled by their own deletion work units.
-    }
-
-    /**
-     * Creates a PixiJS instance corresponding to a VNode.
-     * @param vnode The VNode to create an instance for.
-     * @returns The created PixiJS Container or null if creation fails.
-     */
-    private createPixiInstance(vnode: VNode): Container | null {
-        // TODO: Implement instance creation based on vnode.type
-        const instance = new Container();
-        this.updatePixiInstanceProps(instance, {}, vnode.props);
-        return instance;
-    }
-
-    /**
-     * Updates the properties of a PixiJS instance based on old and new props.
-     * @param pixiInstance The PixiJS instance to update.
-     * @param oldProps The previous props.
-     * @param newProps The new props.
-     */
-    private updatePixiInstanceProps(
-        pixiInstance: Container, // Use DisplayObject for broader compatibility if needed
-        oldProps: Record<string, any>,
-        newProps: Record<string, any>
-    ): void {
-        // TODO: Implement comprehensive prop updates
-
-        if (newProps.x !== oldProps.x) pixiInstance.x = newProps.x ?? 0;
-        if (newProps.y !== oldProps.y) pixiInstance.y = newProps.y ?? 0;
-        if (newProps.alpha !== oldProps.alpha) pixiInstance.alpha = newProps.alpha ?? 1;
-        if (newProps.visible !== oldProps.visible) pixiInstance.visible = newProps.visible ?? true;
-    }
-
-    /**
-     * Finds the parent PixiJS container for a given VNode.
-     * Traverses up the VNode tree until a VNode with a PixiJS instance is found.
-     * @param vnode The VNode whose parent container is needed.
-     * @param defaultContainer The container to return if no parent instance is found.
-     * @returns The parent PixiJS Container.
-     */
-    private findParentContainer(vnode: VNode, defaultContainer: Container): Container {
-        let parentVNode = vnode._parent;
-        while (parentVNode) {
-            if (parentVNode._pixiInstance instanceof Container) {
-                return parentVNode._pixiInstance;
+            if (beforeElement) {
+                this.adaptor.insertChild(parentElement, element, beforeElement);
+            } else {
+                this.adaptor.appendChild(parentElement, element);
             }
-            parentVNode = parentVNode._parent;
+        } else if (!parentVNode) {
+            // This is the root element being placed/updated
+             this.adaptor.getRootContainer(element);
+             console.log("Root element placed/updated:", element);
         }
-        // If no parent VNode has a PixiJS instance, use the root container
-        return defaultContainer;
+    }
+
+    private commitUpdate(workUnit: WorkUnit): void {
+        if (!workUnit.alternate) {
+            console.error("Cannot commit update: Missing alternate VNode for", workUnit.vnode);
+            return;
+        }
+        // Find element, preferring alternate VNode
+        let element = this.nativeNodeMap.get(workUnit.alternate);
+
+        if (!element) {
+            // Fallback to new VNode if not found via alternate (might have been moved)
+            element = this.nativeNodeMap.get(workUnit.vnode);
+             if (!element) {
+                console.error("Cannot commit update: Element not found for alternate or new VNode", workUnit.alternate, workUnit.vnode);
+                return;
+             }
+             console.warn("Commit update found element via new VNode, not alternate. Alternate might be stale.", workUnit);
+        } else {
+             // Update mapping to the new VNode
+             this.nativeNodeMap.set(workUnit.vnode, element);
+        }
+
+        // Perform the update
+        this.adaptor.updateElement(element, workUnit.alternate, workUnit.vnode);
+    }
+
+    private commitDeletion(workUnit: WorkUnit, parentVNodeMap: WeakMap<VNode, VNode>): void {
+        const parentVNode = parentVNodeMap.get(workUnit.vnode);
+        const element = this.nativeNodeMap.get(workUnit.vnode);
+
+        if (!element) {
+             console.warn("Cannot commit deletion: Element not found for", workUnit.vnode);
+             // Still try to recursively delete children mappings
+             this.recursivelyDelete(workUnit.vnode, true);
+             return;
+        }
+
+        if (parentVNode) {
+            const parentElement = this.nativeNodeMap.get(parentVNode);
+            if (parentElement) {
+                this.adaptor.removeChild(parentElement, element);
+            } else {
+                 console.warn("Cannot commit deletion: Parent element not found in map for", parentVNode);
+            }
+        } else {
+             // Deleting a node without a parent in the map (root or detached)
+             console.warn("Attempting to delete node with no parent in map:", workUnit.vnode);
+             // Adaptor might need a way to handle root removal if applicable
+        }
+
+        // Recursively remove mappings and potentially destroy elements
+        this.recursivelyDelete(workUnit.vnode);
+    }
+
+    // --- Helper Methods ---
+
+    /**
+     * Creates a native element using the adaptor, stores the mapping, and sets initial text content if applicable.
+     * @param vnode The VNode to create an element for.
+     * @returns The created native element.
+     */
+    private createAndMapElement(vnode: VNode): TargetElement {
+        const element = this.adaptor.createElement(vnode);
+        this.nativeNodeMap.set(vnode, element);
+
+        // Set initial text content for primitive types
+        if (vnode.type === 'PRIMITIVE' && vnode._text !== undefined && vnode._text !== null) {
+             this.adaptor.setTextContent(element, String(vnode._text));
+        }
+        return element;
+    }
+
+    /**
+     * Recursively removes VNode-to-element mappings for a deleted VNode subtree.
+     * Optionally, the adaptor could implement element destruction here.
+     * @param vnode The root of the subtree to delete mappings for.
+     * @param skipCurrentNode If true, skips removing the mapping for the initial vnode.
+     */
+    private recursivelyDelete(vnode: VNode, skipCurrentNode = false): void {
+        if (!skipCurrentNode) {
+            const element = this.nativeNodeMap.get(vnode);
+            if (element) {
+                // TODO: Consider adding adaptor.destroyElement(element) if needed
+                this.nativeNodeMap.delete(vnode);
+            }
+        }
+
+        // Recursively delete children mappings
+        if (vnode.props && vnode.props.children) {
+            vnode.props.children.forEach(child => {
+                if (child) {
+                    this.recursivelyDelete(child);
+                }
+            });
+        }
+        // TODO: Handle component children if/when components are implemented
+        // if (vnode._component && vnode._component.renderedVNode) {
+        //     this.recursivelyDelete(vnode._component.renderedVNode);
+        // }
+    }
+
+    /**
+     * Finds the first native element corresponding to a sibling VNode
+     * starting from the given `startSiblingVNode`.
+     * Requires VNodes to have a way to traverse siblings (e.g., a `sibling` property).
+     * @param startSiblingVNode The VNode to start searching from.
+     * @returns The corresponding native element, or null if not found.
+     */
+    private findNextNativeSibling(startSiblingVNode: VNode | null): TargetElement | null {
+        let currentVNode: VNode | null = startSiblingVNode;
+        while (currentVNode) {
+            const nativeElement = this.nativeNodeMap.get(currentVNode);
+            if (nativeElement) {
+                return nativeElement; // Found
+            }
+            // Requires VNode.sibling property or alternative strategy
+            currentVNode = (currentVNode as any).sibling || null; // Placeholder
+            if (!currentVNode) {
+                 console.warn("findNextNativeSibling requires VNode.sibling property or alternative strategy.");
+            }
+        }
+        return null; // Not found
     }
 }
