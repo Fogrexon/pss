@@ -51,6 +51,8 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "pixi.js": "^8.1.0"
+    "pixi.js": "^8.1.0",
+    "yoga-layout": "^3.2.1",
+    "yoga-layout-prebuilt": "^1.10.0"
   }
 }

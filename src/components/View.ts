@@ -27,6 +27,12 @@ export function updateViewInstance(instance: Container, vnode: VNode): void {
         applyStyles(instance, style);
     }
 
-    Object.assign(instance, props);
+    // Pixiのプロパティをインスタンスに適用
+    // style以外のプロパティのみを適用
+    for (const key in props) {
+        if (key !== 'children' && key !== 'key') {
+            (instance as any)[key] = props[key];
+        }
+    }
     // Children are handled by the reconciler
 }

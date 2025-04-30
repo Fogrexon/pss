@@ -6,7 +6,7 @@ import {
     TargetTextElement,
     TargetContainerElement,
 } from '../core/reconciler/IRendererAdaptor';
-import { applyStyles } from '../styles'; // スタイル適用関数
+import { applyStyles, calculateLayout, unregisterElement } from '../styles'; // スタイル関連関数
 
 // イベント名のマッピング (必要に応じて)
 const eventNameMap: { [key: string]: string } = {
@@ -41,35 +41,38 @@ export class PixiRendererAdaptor implements IRendererAdaptor {
             // エラー処理またはデフォルト要素を返す
             return new PIXI.Container();
         }
-    }
-
-    createTextElement(text: string): TargetTextElement {
+    }    createTextElement(text: string): TargetTextElement {
         // PIXI.Text オブジェクトを作成
-        const pixiText = new PIXI.Text({ text });
+        const pixiText = new PIXI.Text({ text: text });
         this.applyInitialProps(pixiText, {}); // propsは空だがインタラクティブ設定用
         return pixiText;
-    }
-
-    updateElement(element: TargetElement, oldVNode: VNode | null, newVNode: VNode): void {
+    }updateElement(element: TargetElement, oldVNode: VNode | null, newVNode: VNode): void {
         const oldProps = oldVNode?.props ?? {};
         const newProps = newVNode.props ?? {};
 
         // スタイルの適用/更新
-        applyStyles(element, newProps.style || {});
+        if (element.parent) {
+            applyStyles(element, newProps.style || {}, element.parent);
+        } else {
+            applyStyles(element, newProps.style || {});
+        }
 
         // イベントリスナーの更新
         this.updateEventListeners(element, oldProps, newProps);
 
         // その他の属性の更新 (例: PixiJS固有のプロパティ)
-        this.updatePixiProps(element, oldProps, newProps);
-
-        // テキスト要素の内容更新 (PRIMITIVEの場合)
+        this.updatePixiProps(element, oldProps, newProps);        // テキスト要素の内容更新 (PRIMITIVEの場合)
         if (newVNode.type === 'PRIMITIVE' && element instanceof PIXI.Text) {
             // _text プロパティは createTextVNode で設定される想定
-            const newText = newVNode._text ?? '';
+            const newText = String(newVNode._text ?? '');
             if (newText !== element.text) {
                  this.setTextContent(element, newText);
             }
+        }
+        
+        // レイアウトを再計算（ルート要素の場合）
+        if (element === this.rootContainer) {
+            calculateLayout();
         }
     }
 
