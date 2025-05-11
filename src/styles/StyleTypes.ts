@@ -3,98 +3,155 @@
  */
 export type ReservedValue = 'default' | 'inherit';
 
-type Parsentable = number | `${number}%`
+export type Percentable = number | `${number}%`;
+
+type QuadValue<T> = T | [T, T] | [T, T, T] | [T, T, T, T];
+
+type DoubleValue<T> = T | [T, T];
+
+export type ColorFormat =
+  | number
+  | `#${string}`
+  | `rgb(${number}, ${number}, ${number})`
+  | `rgba(${number}, ${number}, ${number}, ${number})`;
+
+export type WithReservedValue<T extends Record<string | number | symbol, unknown>> = {
+  [K in keyof T]: T[K] | ReservedValue;
+};
 
 /**
  * Layout (Flexbox-like) style properties
  */
-export interface LayoutStyles {
-    display: 'flex' | 'none' | ReservedValue;
+export type LayoutStyles = {
+  display: 'flex' | 'none';
 
-    flexDirection: 'row' | 'column' | 'row-reverse' | 'column-reverse' | ReservedValue;
-    justifyContent: 'flex-start' | 'flex-end' | 'center' | 'space-between' | 'space-around' | 'space-evenly' | ReservedValue;
-    alignItems: 'auto' | 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline' | 'space-between' | 'space-around' | 'space-evenly' | ReservedValue;
-    alignContent: 'auto' | 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline' | 'space-between' | 'space-around' | 'space-evenly' | ReservedValue;
-    alignSelf: 'auto' | 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline' | 'space-between' | 'space-around' | 'space-evenly' | ReservedValue;
-    flexWrap: 'nowrap' | 'wrap' | 'wrap-reverse' | ReservedValue;
-    flexGrow: number | ReservedValue;
-    flexShrink: number | ReservedValue;
-    flexBasis:  number | 'auto' | `${number}%` | ReservedValue;
+  flexDirection: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+  justifyContent:
+    | 'flex-start'
+    | 'flex-end'
+    | 'center'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly';
+  alignItems:
+    | 'auto'
+    | 'flex-start'
+    | 'center'
+    | 'flex-end'
+    | 'stretch'
+    | 'baseline'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly';
+  alignContent:
+    | 'auto'
+    | 'flex-start'
+    | 'center'
+    | 'flex-end'
+    | 'stretch'
+    | 'baseline'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly';
+  alignSelf:
+    | 'auto'
+    | 'flex-start'
+    | 'center'
+    | 'flex-end'
+    | 'stretch'
+    | 'baseline'
+    | 'space-between'
+    | 'space-around'
+    | 'space-evenly';
+  flexWrap: 'nowrap' | 'wrap' | 'wrap-reverse';
+  flexGrow: number;
+  flexShrink: number;
+  flexBasis: number | 'auto' | `${number}%`;
 
-    width: Parsentable | 'auto' | ReservedValue;
-    height: Parsentable | 'auto' | ReservedValue;
-    minWidth: Parsentable | ReservedValue;
-    minHeight: Parsentable | ReservedValue;
-    maxWidth: Parsentable | ReservedValue;
-    maxHeight: Parsentable | ReservedValue;
-    aspectRatio: number | ReservedValue;
+  width: Percentable | 'auto';
+  height: Percentable | 'auto';
+  minWidth: Percentable;
+  minHeight: Percentable;
+  maxWidth: Percentable;
+  maxHeight: Percentable;
+  aspectRatio: number;
 
-    padding: Parsentable | [Parsentable | undefined, Parsentable | undefined] | [Parsentable | undefined, Parsentable | undefined, Parsentable | undefined, Parsentable | undefined] | ReservedValue;
-    margin: Parsentable | [Parsentable | undefined, Parsentable | undefined] | [Parsentable | undefined, Parsentable | undefined, Parsentable | undefined, Parsentable | undefined] | ReservedValue;
-    gap: Parsentable | [Parsentable | undefined, Parsentable | undefined] | ReservedValue;
+  padding: QuadValue<Percentable>;
+  margin: QuadValue<Percentable>;
+  gap: DoubleValue<Percentable>;
 
-    position: 'relative' | 'absolute' | ReservedValue;
-    top: Parsentable | ReservedValue;
-    right: Parsentable | ReservedValue;
-    bottom: Parsentable | ReservedValue;
-    left: Parsentable | ReservedValue;
-}
+  position: 'relative' | 'absolute';
+  top: Percentable;
+  right: Percentable;
+  bottom: Percentable;
+  left: Percentable;
+};
 
 /**
  * Appearance style properties
  */
-export interface AppearanceStyles {
-    backgroundColor: string | number | ReservedValue;
-    backgroundImage: string | ReservedValue;
-    borderRadius: number | [number, number, number, number] | ReservedValue;
-    borderWidth: number | [number, number, number, number] | ReservedValue;
-    borderColor: string | number | ReservedValue;
-    opacity: number | ReservedValue;
-    visible: boolean | ReservedValue;
-}
+export type AppearanceStyles = {
+  backgroundColor: ColorFormat;
+  backgroundImage: string;
+  borderRadius: QuadValue<Percentable>;
+  borderWidth: QuadValue<number>;
+  borderColor: QuadValue<ColorFormat>;
+  opacity: number;
+  visible: boolean;
+};
 
 /**
  * Text style properties
  */
-export interface TextStyles {
-    color: string | number | ReservedValue;
-    fontSize: number | ReservedValue;
-    fontFamily: string | ReservedValue;
-    fontWeight: 'normal' | 'bold' | string | ReservedValue;
-    fontStyle: 'normal' | 'italic' | ReservedValue;
-    textAlign: 'left' | 'center' | 'right' | ReservedValue;
-    lineHeight: number | ReservedValue;
-    letterSpacing: number | ReservedValue;
-    wordWrap: boolean | ReservedValue;
-    wordWrapWidth: number | ReservedValue;
-}
+export type TextStyles = {
+  color: ColorFormat;
+  fontSize: number;
+  fontFamily: string | string[];
+  fontWeight:
+    | 'normal'
+    | 'bold'
+    | 'bolder'
+    | 'lighter'
+    | '100'
+    | '200'
+    | '300'
+    | '400'
+    | '500'
+    | '600'
+    | '700'
+    | '800'
+    | '900';
+  fontStyle: 'normal' | 'italic' | 'oblique';
+  textAlign: 'left' | 'center' | 'right';
+  lineHeight: number;
+  letterSpacing: number;
+  textBaseline: 'alphabetic' | 'top' | 'hanging' | 'middle' | 'ideographic' | 'bottom';
+  wordWrap: boolean;
+  wordWrapWidth: number;
+};
 
 /**
  * Pixi.js specific style properties
  */
-export interface PixiStyles {
-    tint: number | string | ReservedValue;
-    interactive: boolean | ReservedValue;
-    cursor: string | ReservedValue;
-}
+export type PixiStyles = {
+  tint: ColorFormat;
+  cursor: string;
+};
 
 /**
  * Animation style properties
  */
-export interface AnimationStyles {
-    animationName: string | ReservedValue;
-    animationDuration: number | ReservedValue;
-    animationDelay: number | ReservedValue;
-}
+export type AnimationStyles = {
+  animationName: string;
+  animationDuration: number;
+  animationDelay: number;
+};
 
 /**
  * Combined style with all categories
  */
-export type RequiredStyle =
-    & LayoutStyles
-    & AppearanceStyles
-    & TextStyles
-    & PixiStyles
-    & AnimationStyles;
+export type RequiredStyles = WithReservedValue<
+  LayoutStyles & AppearanceStyles & TextStyles & PixiStyles & AnimationStyles
+>;
 
-export type Style = Partial<RequiredStyle>;
+export type Styles = Partial<RequiredStyles>;

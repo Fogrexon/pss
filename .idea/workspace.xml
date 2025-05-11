@@ -4,7 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2401fe75-549c-4754-853d-a9e860bbe739" name="Changes" comment="fix: gitignore" />
+    <list default="true" id="2401fe75-549c-4754-853d-a9e860bbe739" name="Changes" comment="feat: wip">
+      <change afterPath="$PROJECT_DIR$/src/styles/IntermediateStyleTypes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/styles/interpreters/appearanceInterpreters.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/styles/interpreters/layoutInterpreters.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/styles/interpreters/textInterpreters.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/BubbleStyle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/BubbleStyleApplier.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/IBubbleStyle.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/IBubbleStyleApplier.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/MiddleStyleTypes.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/StyleTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/StyleTypes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/interpreters/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/interpreters/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/interpreters/layoutInterpreter.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/interpreters/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/interpreters/utils.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/styles/utils.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/styles/utils.ts" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -47,12 +62,12 @@
     &quot;assignee&quot;: &quot;Fogrexon&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Fogrexon/pss.git",
-    "accountId": "cefdea47-f6d7-40e0-99fa-667e1c83a982"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Fogrexon/pss.git&quot;,
+    &quot;accountId&quot;: &quot;cefdea47-f6d7-40e0-99fa-667e1c83a982&quot;
   }
-}]]></component>
+}</component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
   &quot;isMigrated&quot;: true
@@ -79,7 +94,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/core&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat-20250511-core__redesign&quot;,
     &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/hidetaka.katsuyama/projects/bubble-ui&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -93,14 +108,14 @@
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\projects\\pss\\node_modules\\prettier&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/Users/hidetaka.katsuyama/projects/bubble-ui/node_modules/typescript/lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\projects\\bubble-ui\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-WS-243.24978.60" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-WS-251.25410.117" />
       </set>
     </attachedChunks>
   </component>
@@ -140,6 +155,12 @@
       <workItem from="1728205461798" duration="2628000" />
       <workItem from="1745641046115" duration="2247000" />
       <workItem from="1746279229067" duration="19000" />
+      <workItem from="1746456596440" duration="987000" />
+      <workItem from="1746526956686" duration="6798000" />
+      <workItem from="1746877955913" duration="57000" />
+      <workItem from="1746879235654" duration="316000" />
+      <workItem from="1746919884880" duration="3420000" />
+      <workItem from="1746924422715" duration="99000" />
     </task>
     <task id="LOCAL-00001" summary="fix: update base settings">
       <option name="closed" value="true" />
@@ -228,9 +249,10 @@
     <MESSAGE value="fix: tempcommit" />
     <MESSAGE value="fix: remove all previous codes" />
     <MESSAGE value="feat; wip" />
-    <MESSAGE value="feat: wip" />
     <MESSAGE value="feat: add api-doc" />
     <MESSAGE value="fix: gitignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: gitignore" />
+    <MESSAGE value="wip" />
+    <MESSAGE value="feat: wip" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: wip" />
   </component>
 </project>

@@ -1,2 +1,2 @@
-export { BubbleStyle } from './BubbleStyle';
+export { BubbleStyleApplier } from './BubbleStyleApplier';
 export * from './StyleTypes';
